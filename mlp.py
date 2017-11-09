@@ -22,8 +22,15 @@ def differentiated_bipolar_sigmoid(x: Union[float, int]) -> float:
 
 
 class MLP:
-    def __init__(self, hidden_units: int = 30):
-        self.hidden_units = hidden_units
+    def __init__(self, input_unit_shape: tuple = (9, 7), categories: int = 7, hidden_units: int = 30):
+        # Amount of units within the hidden layer
+        self._hidden_units = hidden_units
+
+        # The array of weights is a tuple in which the first index refers to the input-to-hidden weights array and
+        # the second and last index refers to the hidden-to-output weights array. Its shape should therefore be (2,n)
+        # This would also be considered the step 0 aka initialization of random uniform weights.
+        self._weights = (np.random.rand(self._hidden_units, np.prod(input_unit_shape)),
+                         np.random.rand(categories, self._hidden_units))
 
         self._trained = False
 
