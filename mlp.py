@@ -82,7 +82,7 @@ class MLP:
 
                     output_signals.append(bipolar_sigmoid(z_in))  # Calculate signal and add it to the list
 
-                print(output_signals)
+                # print(output_signals)
 
             counter += 1
 
@@ -98,7 +98,12 @@ class MLP:
         if _epoch != self._cache['epochs']:
             msg = '\rTraining epoch {} out of {}...'.format(_epoch, self._cache['epochs'])
         else:
-            msg = '\rTrained {} epochs.{whitespaces}\n'.format(_epoch, whitespaces=' ' * (11 + int(log10(_epoch))))
+            w_spaces = int(log10(_epoch)) - 14
+
+            if w_spaces < 0:
+                w_spaces = 0
+
+            msg = '\rTraining has finished. {} epochs were run.{w_spaces}\n'.format(_epoch, w_spaces=' ' * w_spaces)
 
         stdout.write(msg)
         stdout.flush()

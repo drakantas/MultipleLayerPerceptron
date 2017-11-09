@@ -43,4 +43,4 @@ if __name__ == '__main__':
           'Multiple Layer Perceptron Backpropagation\n'
           '{0:%d-%m-%Y %H:%M}\n'
           '----------'.format(now()))
-    mlp.train(data, 15)
+    mlp.train(data, 1000)
