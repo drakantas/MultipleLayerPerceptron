@@ -1,7 +1,7 @@
 import numpy as np
 from datetime import datetime,  timedelta
 
-from mlp import MLP
+from .net import MLP, __version__
 
 
 def now() -> datetime:
@@ -40,7 +40,7 @@ mlp = MLP()
 
 if __name__ == '__main__':
     print('----------\n'
-          'Multiple Layer Perceptron Backpropagation\n'
+          'Multiple Layer Perceptron Backpropagation v{1}\n'
           '{0:%d-%m-%Y %H:%M}\n'
-          '----------'.format(now()))
+          '----------'.format(now(), __version__))
     mlp.train(data, 1000)

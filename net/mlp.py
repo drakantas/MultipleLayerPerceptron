@@ -1,8 +1,8 @@
 import numpy as np
 from sys import stdout
 from math import exp, log10
-from numpy.ctypeslib import ndarray
 from typing import Union, Callable
+from numpy.ctypeslib import ndarray
 
 __all__ = ('MLP',)
 
