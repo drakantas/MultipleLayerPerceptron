@@ -1,10 +1,10 @@
 import numpy as np
 from sys import stdout
 from math import exp, log10
-from typing import Union, Callable
 from numpy.ctypeslib import ndarray
+from typing import Union, Callable
 
-__all__ = ('MLP',)
+__all__ = ('MLP', 'identity_matrix')
 
 
 def identity_matrix(n: int) -> ndarray:
@@ -48,7 +48,7 @@ class MLP:
         # Biases
         self._bias = np.ones(2)
 
-        self._trained = False
+        self.trained = False
 
         # Callback that should return a 2d array of the data that will be trained.
         self._unnester = unnester
@@ -164,9 +164,12 @@ class MLP:
                 self._learning_rate -= 0.0005
 
             if counter == epochs:
-                if not self._trained:
-                    self._trained = True  # The network has been trained
+                if not self.trained:
+                    self.trained = True  # The network has been trained
                 break
+
+    def guess(self, data: ndarray):
+        pass
 
     def _epoch_progress(self, epoch: int):
         assert self._cache
