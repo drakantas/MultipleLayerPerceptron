@@ -1,7 +1,7 @@
 import numpy as np
 from datetime import datetime,  timedelta
 
-from .net import MLP, __version__
+from net import MLP, __version__
 
 
 def now() -> datetime:
