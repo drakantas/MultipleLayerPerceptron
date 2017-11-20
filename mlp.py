@@ -148,6 +148,7 @@ class MLP:
                     self._cache['v_ct'][i] = self._learning_rate * d_signal * _data
                     self._cache['bv_ct'][i] = self._learning_rate * d_signal
 
+                # 3rd stage - Update weights
                 # Step 8
                 for cat, w_ct in enumerate(self._cache['w_ct']):
                     self._weights[1][cat] += w_ct
