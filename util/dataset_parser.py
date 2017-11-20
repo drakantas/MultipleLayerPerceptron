@@ -66,4 +66,4 @@ class Parser:
 
         assert out_path is not None
 
-        out_path.write_text(dumps(dataset, sort_keys=True, indent=4))
+        out_path.write_text(dumps(dataset, sort_keys=False, indent=4))
