@@ -17,7 +17,7 @@ def bipolar_sigmoid(x: Union[float, int]) -> float:
     return 2 * (1 + exp(-1 * x)) ** -1 - 1
 
 
-def differentiated_bipolar_sigmoid(x: Union[float, int]) -> float:
+def d_bipolar_sigmoid(x: Union[float, int]) -> float:
     func = bipolar_sigmoid(x)
     return 0.5 * (1 + func) * (1 - func)
 
@@ -37,11 +37,16 @@ class MLP:
         # Amount of units within the hidden layer
         self._hidden_units = hidden_units
 
+        self._input_units_amount = np.prod(input_unit_shape)
+
         # The array of weights is a tuple in which the first index refers to the input-to-hidden weights array and
         # the second and last index refers to the hidden-to-output weights array. Its shape should therefore be (2,n)
         # Step 0 - Initialization of random uniform weights.
-        self._weights = (np.random.rand(self._hidden_units, np.prod(input_unit_shape)),
+        self._weights = (np.random.rand(self._hidden_units, self._input_units_amount),
                          np.random.rand(categories, self._hidden_units))
+
+        # Biases
+        self._bias = np.ones(2)
 
         self._trained = False
 
@@ -50,7 +55,43 @@ class MLP:
 
         # The purpose of the cache is to store the latest trained data array, amount of epochs
         # trained, and some other useful data.
-        self._cache = dict()
+        self._cache = {
+            # Amount of epochs run in the last train() call
+            'epochs': None,
+
+            # Data run in the last train() call
+            'data': None,
+
+            # Net inputs
+            'z_in': np.zeros(hidden_units),
+
+            # Hidden layer inputs
+            'y_in': np.zeros(categories),
+
+            # Signals generated from broadcasting the input units to the hidden layer
+            'hidden_signals': np.zeros(hidden_units),
+
+            # Signals generated from broadcasting the hidden units to the output layer
+            'output_signals': np.zeros(categories),
+
+            # Deltas
+            'deltas': np.zeros(categories),
+
+            # Weight w correction terms
+            'w_ct': np.zeros((categories, self._hidden_units)),
+
+            # Weight v correction terms
+            'v_ct': np.zeros((self._hidden_units, self._input_units_amount)),
+
+            # Bias correction term of the w bunch
+            'bw_ct': np.zeros(categories),
+
+            # Bias correction term of the v bunch
+            'bv_ct': np.zeros(self._hidden_units)
+        }
+
+        # Starter learning rate, decreases by .0005 after each epoch until it reaches 0.05
+        self._learning_rate = 0.6
 
     def train(self, data: ndarray, epochs: int = 100) -> None:
         counter = 0
@@ -62,6 +103,7 @@ class MLP:
         while True:
             self._epoch_progress(counter)
 
+            # 1st stage - Feedforward computation
             # Step 2 - Iterate over each training pair [data - target]
             for pair in data:
                 _data = self._unnester(pair[0])
@@ -69,22 +111,54 @@ class MLP:
                 # Check that the amount of values within each data entry equals the input unit dimension
                 assert len(_data) == self._weights[0].shape[1]
 
-                # List of signals to broadcast to the output layer
-                output_signals = list()
-
                 # Steps 3,4 - We're going to handle the input unit broadcasting, following calculations and hidden unit
                 # broadcasting together. Because as we know, each hidden unit should receive the whole array of input
                 # units and this way seems easier.
-                for hidden_unit in enumerate(self._weights[0]):
+                for hu, v in enumerate(self._weights[0]):
                     # hidden_unit is a Tuple of (index, weight_array)
 
-                    z_in = 1 + sum([_data[i] * hidden_unit[1][i] for i, _ in enumerate(_data)])
+                    self._cache['z_in'][hu] = self._bias[0] + sum([_data[i] * v[i] for i, _ in enumerate(_data)])
 
-                    output_signals.append(bipolar_sigmoid(z_in))  # Calculate signal and add it to the list
+                    self._cache['hidden_signals'][hu] = bipolar_sigmoid(self._cache['z_in'][hu])
 
-                # print(output_signals)
+                # Step 5 - Receive output signals broadcasted from the hidden layer and compute the
+                # output signals.
+                for ou, w in enumerate(self._weights[1]):
+                    self._cache['y_in'][ou] = self._bias[1] + sum(self._cache['hidden_signals'] * w)
+
+                    self._cache['output_signals'][ou] = bipolar_sigmoid(self._cache['y_in'][ou])
+
+                # 2nd stage - Backpropagation of error
+                # Step 6
+                self._cache['deltas'] = (pair[1] - self._cache['output_signals']) * np.vectorize(d_bipolar_sigmoid)(
+                    self._cache['y_in'])
+
+                for i, _ in enumerate(self._cache['w_ct']):
+                    delta = self._cache['deltas'][i]
+
+                    self._cache['w_ct'][i] = self._learning_rate * delta * self._cache['hidden_signals']
+                    self._cache['bw_ct'][i] = self._learning_rate * delta
+
+                # Step 7
+                for i in range(0, self._hidden_units):
+                    d_in = sum(self._cache['deltas'] * self._weights[1][:, i])
+
+                    d_signal = d_in * d_bipolar_sigmoid(d_in)
+
+                    self._cache['v_ct'][i] = self._learning_rate * d_signal * _data
+                    self._cache['bv_ct'][i] = self._learning_rate * d_signal
+
+                # Step 8
+                for cat, w_ct in enumerate(self._cache['w_ct']):
+                    self._weights[1][cat] += w_ct
+
+                for hi, v_ct in enumerate(self._cache['v_ct']):
+                    self._weights[0][hi] += v_ct
 
             counter += 1
+
+            if self._learning_rate != 0.05:
+                self._learning_rate -= 0.0005
 
             if counter == epochs:
                 if not self._trained:
