@@ -115,8 +115,6 @@ class MLP:
                 # broadcasting together. Because as we know, each hidden unit should receive the whole array of input
                 # units and this way seems easier.
                 for hu, v in enumerate(self._weights[0]):
-                    # hidden_unit is a Tuple of (index, weight_array)
-
                     self._cache['z_in'][hu] = self._bias[0] + sum([_data[i] * v[i] for i, _ in enumerate(_data)])
 
                     self._cache['hidden_signals'][hu] = bipolar_sigmoid(self._cache['z_in'][hu])
