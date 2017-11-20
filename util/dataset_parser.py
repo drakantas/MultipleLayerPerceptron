@@ -1,10 +1,11 @@
 from openpyxl import load_workbook
 from pathlib import Path
+from json import dumps
 
 
 class Parser:
     @staticmethod
-    def load(path: Path, sheet: str, cpr: int = 9, cpf: int = 7, fonts: int = 6):
+    def load(path: Path, sheet: str, cpr: int = 9, cpf: int = 7, fonts: int = 6, out_path: Path = None):
         workbook = load_workbook(str(path.resolve()))
         dataset = list()
         _rows = list()
@@ -43,3 +44,26 @@ class Parser:
                     font_index = 0
 
         del font_index, _row_counter, _rows, workbook
+
+        _characters = [[] for _ in range(0, cpf)]
+        _character_counter = 0
+
+        for font_index, font in enumerate(dataset):
+            for row_index, row in enumerate(font):
+                _characters[_character_counter].append(row)
+
+                _character_counter += 1
+
+                if _character_counter == cpf:
+                    _character_counter = 0
+
+                if row_index + 1 == rpf:
+                    dataset[font_index] = _characters
+
+                    _characters = [[] for _ in range(0, cpf)]
+
+        del _characters, _character_counter
+
+        assert out_path is not None
+
+        out_path.write_text(dumps(dataset, sort_keys=True, indent=4))

@@ -46,5 +46,5 @@ if __name__ == '__main__':
           '{0:%d-%m-%Y %H:%M}\n'
           '----------'.format(now(), __version__))
     parser = Parser()
-    parser.load(Path('./dataset/Clustered.xlsx'), 'Hoja1')
+    parser.load(Path('./dataset/Clustered.xlsx'), 'Hoja1', out_path=Path('./dataset/fonts.json'))
     #mlp.train(data, 1000)
