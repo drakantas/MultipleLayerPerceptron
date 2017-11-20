@@ -8,7 +8,8 @@ from util.dataset_parser import Parser
 
 
 config = {
-    'dataset_path': Path('./dataset/fonts.json'),
+    'data_path': Path('./data/'),
+    'dataset_path': Path('./data/fonts.json'),
     'net': {
         'char_shape': (9, 9),
         'cats': 7,
@@ -23,7 +24,7 @@ def now() -> datetime:
 
 def parse_dataset_to_json():
     parser = Parser()
-    parser.load(Path('./dataset/Clustered.xlsx'), 'Hoja1', out_path=config['dataset_path'])
+    parser.load(Path('./data/Clustered.xlsx'), 'Hoja1', out_path=config['dataset_path'])
 
 
 def get_dataset():
@@ -43,7 +44,7 @@ def get_dataset():
 
 def run_cli():
     mlp = MLP(input_unit_shape=config['net']['char_shape'], categories=config['net']['cats'],
-              hidden_units=config['net']['hidden_units'])
+              hidden_units=config['net']['hidden_units'], data_path=config['data_path'])
 
     print('----------\n'
           'Multiple Layer Perceptron Backpropagation v{1}\n'
@@ -52,6 +53,8 @@ def run_cli():
 
     if not mlp.trained:
         mlp.train(get_dataset(), epochs=100000)
+        mlp.export_net('7chars')
+        #mlp.import_net('7chars-100')
 
 
 def run_web_app():
@@ -61,7 +64,7 @@ def run_web_app():
 class App:
     def __init__(self):
         self.net = MLP(input_unit_shape=config['net']['char_shape'], categories=config['net']['cats'],
-                       hidden_units=config['net']['hidden_units'])
+                       hidden_units=config['net']['hidden_units'], data_path=config['data_path'])
 
 
 if __name__ == '__main__':

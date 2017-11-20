@@ -1,8 +1,10 @@
 import numpy as np
 from sys import stdout
+from pathlib import Path
 from math import exp, log10
-from numpy.ctypeslib import ndarray
+from json import loads, dumps
 from typing import Union, Callable
+from numpy.ctypeslib import ndarray
 
 __all__ = ('MLP', 'identity_matrix')
 
@@ -33,7 +35,7 @@ def _2d_unnester(data: ndarray) -> ndarray:
 
 class MLP:
     def __init__(self, input_unit_shape: tuple = (9, 7), categories: int = 7, hidden_units: int = 30,
-                 unnester: Callable[[ndarray], ndarray] = _2d_unnester):
+                 unnester: Callable[[ndarray], ndarray] = _2d_unnester, data_path: Path = None):
         # Amount of units within the hidden layer
         self._hidden_units = hidden_units
 
@@ -92,6 +94,9 @@ class MLP:
 
         # Starter learning rate, decreases by .0005 after each epoch until it reaches 0.05
         self._learning_rate = 0.6
+
+        # Path to directory that contains all sort of datasets used by the app
+        self._data_path = data_path
 
     def train(self, data: ndarray, epochs: int = 100) -> None:
         counter = 0
@@ -168,6 +173,48 @@ class MLP:
 
     def guess(self, data: ndarray):
         pass
+
+    def export_net(self, name: str):
+        v = [[str(_v) for _v in r] for r in self._weights[0]]
+        w = [[str(_v) for _v in r] for r in self._weights[1]]
+
+        path = self._data_path.joinpath(Path('{}-{}epochs.json'.format(name, self._cache['epochs'])))
+
+        path.write_text(dumps({
+            'weights': {
+                'v': v,
+                'w': w
+            },
+            'biases': {
+                'v': str(self._bias[0]),
+                'w': str(self._bias[1])
+            },
+            'learning_rate': str(self._learning_rate)
+        }, sort_keys=False, indent=4))
+
+    def import_net(self, name: str):
+        path = self._data_path.joinpath(Path('{}epochs.json'.format(name)))
+
+        net = loads(path.read_text())
+
+        self._bias[0] = net['biases']['v']
+        self._bias[1] = net['biases']['w']
+
+        self._learning_rate = net['learning_rate']
+
+        for i, weights in enumerate(self._weights):
+            for j, row in enumerate(weights):
+                for k, column in enumerate(row):
+                    if i == 0:
+                        _weight = 'v'
+                    else:
+                        _weight = 'w'
+
+                    self._weights[i][j][k] = net['weights'][_weight][j][k]
+
+        self.trained = True
+
+        print(self._weights[0][0])
 
     def _epoch_progress(self, epoch: int):
         assert self._cache
