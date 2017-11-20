@@ -31,11 +31,12 @@ class Parser:
         assert len(_rows) % cpf == 0
 
         font_index = 0
+        rpf = cpr * cpf
 
         for ri, row in enumerate(_rows):
             dataset[font_index].append(row)
 
-            if (ri + 1) % 63 == 0:
+            if (ri + 1) % rpf == 0:
                 font_index += 1
 
                 if font_index == fonts:
