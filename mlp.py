@@ -152,9 +152,11 @@ class MLP:
                 # Step 8
                 for cat, w_ct in enumerate(self._cache['w_ct']):
                     self._weights[1][cat] += w_ct
+                    self._bias[1] += self._cache['bw_ct'][cat]
 
                 for hi, v_ct in enumerate(self._cache['v_ct']):
                     self._weights[0][hi] += v_ct
+                    self._bias[0] += self._cache['bv_ct'][hi]
 
             counter += 1
 
