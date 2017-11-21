@@ -163,7 +163,7 @@ class MLP:
 
             counter += 1
 
-            if self._learning_rate != 0.05:
+            if self._learning_rate > 0.05:
                 self._learning_rate -= 0.0005
 
             if counter == epochs:
