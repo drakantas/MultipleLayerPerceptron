@@ -39,6 +39,8 @@ class MLP:
         # Amount of units within the hidden layer
         self._hidden_units = hidden_units
 
+        self._input_unit_shape = input_unit_shape
+
         self._input_units_amount = np.prod(input_unit_shape)
 
         # The array of weights is a tuple in which the first index refers to the input-to-hidden weights array and
@@ -171,8 +173,62 @@ class MLP:
                     self.trained = True  # The network has been trained
                 break
 
-    def guess(self, data: ndarray):
-        pass
+    def guess(self, data: ndarray) -> str:
+        assert data.shape == self._input_unit_shape
+        assert self.trained is True
+
+        character = _2d_unnester(data)
+        z_in = list()
+        z = list()
+        y_in = list()
+        y = list()
+        deltas = list()
+        targets = identity_matrix(7)
+
+        for hu_i, v in enumerate(self._weights[0]):
+            z_in.append(self._bias[0] + sum([character[i] * v[i] for i, _ in enumerate(character)]))
+            z.append(bipolar_sigmoid(z_in[-1]))
+
+        for ou_i, w in enumerate(self._weights[1]):
+            y_in.append(self._bias[1] + sum(z * w))
+            y.append(y_in[-1])
+
+        for target in targets:
+            deltas.append(target - y)
+
+        # El delta menor significa el menor error
+        # Seleccionar los deltas menores de los arreglos y de estos deltas coger el mayor,
+        # Ese es el delta que buscamos para identificar el caracter.
+
+        def min_delta(delta):
+            _min_delta = None
+
+            for i, d in enumerate(delta):
+                if _min_delta is None:
+                    _min_delta = [i, d]
+                    continue
+
+                if d < _min_delta[1]:
+                    _min_delta[0] = i
+                    _min_delta[1] = d
+
+            return _min_delta
+
+        max_delta = None
+
+        for i, delta in enumerate(deltas):
+            if max_delta is None:
+                max_delta = [i, *min_delta(delta)]
+                continue
+
+            _min_d = min_delta(delta)
+
+            if _min_d[1] > max_delta[2]:
+                max_delta[0] = i
+                max_delta[1] = _min_d[0]
+                max_delta[2] = _min_d[1]
+
+        return chr(97 + max_delta[1])
 
     def export_net(self, name: str):
         v = [[str(_v) for _v in r] for r in self._weights[0]]
@@ -213,8 +269,6 @@ class MLP:
                     self._weights[i][j][k] = net['weights'][_weight][j][k]
 
         self.trained = True
-
-        print(self._weights[0][0])
 
     def _epoch_progress(self, epoch: int):
         assert self._cache

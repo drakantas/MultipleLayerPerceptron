@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Identificador de caracteres</title>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700,700i" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/css/app.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+    {% if error is defined %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+    <form action="/identify-character" method="post">
+        <table class="character-builder" cellspacing="2" cellpadding="0">
+            <tbody>
+            {% for r in range(0, 9) %}
+            <tr>
+                {% for c in range(0, 9) %}
+                <td {% if character is defined and character[r][c] == 1 %}class="checked"{% endif %}>
+                    <input type="checkbox" name="cell-{{ r }}-{{ c }}" {% if character is defined and character[r][c] == 1 %}checked{% endif %}>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if guess is not defined %}
+        <div class="text-center">
+            <button type="submit" class="btn lg">Identificar</button>
+        </div>
+        {% endif %}
+        {% if guess is defined %}
+        <div class="guess">
+            He identificado el caracter:
+            <div class="character">
+                {{ guess }}
+            </div>
+            Espero sea lo correcto.
+        </div>
+        <div class="try-again">
+            <i>¿Incontento con el resultado?</i> <button type="submit" class="btn">Reintentar</button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

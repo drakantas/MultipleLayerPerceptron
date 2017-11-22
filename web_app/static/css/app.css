@@ -1,0 +1,140 @@
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background-color: #312E2B;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 14px;
+    line-height: 1.25em;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.character-builder {
+    margin-bottom: 20px;
+}
+
+.character-builder > tbody > tr > td {
+    cursor: pointer;
+    height: 48px;
+    width: 48px;
+    background-color: #4E4E4E;
+}
+
+.character-builder > tbody > tr > td.checked {
+    background-color: #BDBDBD;
+}
+
+.character-builder > tbody > tr > td > input[type="checkbox"] {
+    visibility: hidden;
+    cursor: pointer;
+    height: 0;
+}
+
+.container {
+    width: 452px;
+    max-width: 452px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.error,
+.guess,
+.try-again {
+    width: 100%;
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    background-color: #ECECEC;
+    font-color: #92908F;
+    border-radius: 4px;
+}
+
+.error,
+.guess {
+    margin-bottom: 20px;
+}
+
+.error {
+    background-color: #B53D1E;
+    color: #ECECEC;
+}
+
+.guess {
+    background-color: #68923E;
+    color: #ECECEC;
+    text-align: center;
+}
+
+.guess > .character {
+    text-align: center;
+    font-size: 3.3em;
+    line-height: 1.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.try-again {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.btn {
+    cursor: pointer;
+    text-align: center;
+    color: #ECECEC;
+    font-size: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    background-color: #68923E;
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    outline: none;
+    font-family: 'Source Sans Pro', sans-serif;
+    outline: none;
+    line-height: 1.25em;
+    vertical-align: middle;
+}
+
+.btn.lg {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.btn {
+    -webkit-transition: box-shadow 200ms ease-in-out;
+    -ms-transition: box-shadow 200ms ease-in-out;
+    transition: box-shadow 200ms ease-in-out;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active {
+    box-shadow: 0 2px 6px 1px rgba(0, 0, 0, 0.2);
+}
+
+.btn.lg:hover,
+.btn.lg:focus,
+.btn.lg:active {
+    box-shadow: 0 2px 10px 1px rgba(0, 0, 0, 0.5);
+}
+
+.text-center {
+    text-align: center;
+}
