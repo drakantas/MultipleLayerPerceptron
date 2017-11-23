@@ -1,4 +1,5 @@
 import asyncio
+import argparse
 import numpy as np
 from json import load
 from time import sleep
@@ -10,6 +11,10 @@ from web_app.app import app, init_app
 from util.dataset_parser import Parser
 from net import __version__, MLP, identity_matrix
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', default=False, type=int, help='Correr secuencia de identificación de caracteres de '
+                                                            'dataset o inicializar web app')
 
 config = {
     'app_path': Path('./web_app'),
@@ -100,4 +105,14 @@ def run_web_app():
 
 
 if __name__ == '__main__':
-    run_cli()
+    args = parser.parse_args()
+    mode = args.mode
+
+    if mode == 1:
+        run_cli()
+    elif mode == 2:
+        run_web_app()
+    else:
+        print('Solo se soportan los modos:\n'
+              '1 -> CLI\n'
+              '2 -> Web app')
